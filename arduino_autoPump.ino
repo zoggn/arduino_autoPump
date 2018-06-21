@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-#define button1 3
+#define button1 2
 #define rel_pin  9
 
 int millisec = 1000;
@@ -9,7 +9,7 @@ unsigned long int waitTime = 30;
 unsigned long int delayTime = 15;
 unsigned long int currentTime = 0;
 boolean pumpState = false;
-int menuOrSettings = 0;
+volatile boolean menuOrSettings = 0;
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
 
@@ -17,12 +17,13 @@ void setup() {
   Serial.begin(9600);
 
   pinMode(button1, INPUT_PULLUP);
-  attachInterrupt(1, OnButtonClick, FALLING);
+  attachInterrupt(0, OnButtonClick, FALLING);
 
   pinMode(rel_pin, OUTPUT);
   digitalWrite(rel_pin, HIGH);
 
   lcd.init();
+  lcd.noBacklight();
 }
 
 void loop() {
@@ -43,36 +44,32 @@ void loop() {
     }
   }
 
+
   if (menuOrSettings == 0 ) {
     lcd.clear();
     lcd.noBacklight();
-  } else if (menuOrSettings == 1) {
-    if ((millis() - currentTime) >= 2000)
-      main_menu();
+  } else {
+    main_menu();
   }
 }
 
 void OnButtonClick() {
-  menuOrSettings++;
-  if (menuOrSettings > 2) {
-    menuOrSettings = 0;
-  }
+  menuOrSettings = !menuOrSettings;
 }
 
 void main_menu() {
+  unsigned int temp = (millis() - currentTime) / millisec;
   lcd.backlight();
   lcd.setCursor(0, 0);
   if (pumpState == true) {
-    if (((millis() - currentTime) / millisec) >= 10) {
-      lcd.print("Pump enabled: "); lcd.setCursor(14, 0); lcd.print((millis() - currentTime) / millisec);
-    } else {
-      lcd.print("Pump enabled: "); lcd.setCursor(14, 0); lcd.print((millis() - currentTime) / millisec); lcd.setCursor(15, 0); lcd.print(" ");
+    lcd.print("Pump enabled: "); lcd.setCursor(14, 0); lcd.print(temp);
+    if (temp < 10) {
+      lcd.setCursor(15, 0); lcd.print(" ");
     }
   } else {
-    if ((waitTime - (millis() - currentTime) / millisec) >= 10) {
-      lcd.print("Enable after: "); lcd.setCursor(14, 0); lcd.print((waitTime - (millis() - currentTime) / millisec));
-    } else {
-      lcd.print("Enable after: "); lcd.setCursor(14, 0); lcd.print((waitTime - (millis() - currentTime) / millisec)); lcd.setCursor(15, 0); lcd.print(" ");
+    lcd.print("Enable after: "); lcd.setCursor(14, 0); lcd.print(waitTime - temp);
+    if (waitTime - temp < 10) {
+      lcd.setCursor(15, 0); lcd.print(" ");
     }
   }
 }
