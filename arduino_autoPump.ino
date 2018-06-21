@@ -47,7 +47,8 @@ void loop() {
     lcd.clear();
     lcd.noBacklight();
   } else if (menuOrSettings == 1) {
-    main_menu();
+    if ((millis() - currentTime) >= 2000)
+      main_menu();
   }
 }
 
@@ -62,9 +63,16 @@ void main_menu() {
   lcd.backlight();
   lcd.setCursor(0, 0);
   if (pumpState == true) {
-    lcd.print("Pump enabled: "); lcd.setCursor(14, 0); lcd.print((millis() - currentTime) / millisec);
+    if (((millis() - currentTime) / millisec) >= 10) {
+      lcd.print("Pump enabled: "); lcd.setCursor(14, 0); lcd.print((millis() - currentTime) / millisec);
+    } else {
+      lcd.print("Pump enabled: "); lcd.setCursor(14, 0); lcd.print((millis() - currentTime) / millisec); lcd.setCursor(15, 0); lcd.print(" ");
+    }
   } else {
-    lcd.print("Enable after: "); lcd.setCursor(14, 0); lcd.print((waitTime - (millis() - currentTime) / millisec));
+    if ((waitTime - (millis() - currentTime) / millisec) >= 10) {
+      lcd.print("Enable after: "); lcd.setCursor(14, 0); lcd.print((waitTime - (millis() - currentTime) / millisec));
+    } else {
+      lcd.print("Enable after: "); lcd.setCursor(14, 0); lcd.print((waitTime - (millis() - currentTime) / millisec)); lcd.setCursor(15, 0); lcd.print(" ");
+    }
   }
 }
-
