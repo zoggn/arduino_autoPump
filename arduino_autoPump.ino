@@ -43,19 +43,17 @@ void loop() {
     }
   }
 
-  if(menuOrSettings == 0 ){
+  if (menuOrSettings == 0 ) {
     lcd.clear();
     lcd.noBacklight();
-  } else if(menuOrSettings == 1){
+  } else if (menuOrSettings == 1) {
     main_menu();
-  } else if(menuOrSettings == 2){
-    settings();
   }
 }
 
 void OnButtonClick() {
   menuOrSettings++;
-  if(menuOrSettings > 2){
+  if (menuOrSettings > 2) {
     menuOrSettings = 0;
   }
 }
@@ -66,13 +64,7 @@ void main_menu() {
   if (pumpState == true) {
     lcd.print("Pump enabled: "); lcd.setCursor(14, 0); lcd.print((millis() - currentTime) / millisec);
   } else {
-  lcd.print("Enable after: "); lcd.setCursor(14, 0); lcd.print((waitTime - (millis()-currentTime) / millisec));
+    lcd.print("Enable after: "); lcd.setCursor(14, 0); lcd.print((waitTime - (millis() - currentTime) / millisec));
   }
-}
-
-void settings(){
-  lcd.backlight();
-  lcd.setCursor(0,0);
-  lcd.print("You in settings");
 }
 
